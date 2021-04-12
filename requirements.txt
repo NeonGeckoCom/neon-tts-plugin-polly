@@ -1,3 +1,3 @@
 boto3
 mycroft-lib @ git+https://github.com/HelloChatterbox/mycroft-lib
-neon_utils @ git+https://github.com/NeonGeckoCom/neon-skill-utils
+neon_utils @ git+https://github.com/NeonGeckoCom/neon-skill-utils@dev
