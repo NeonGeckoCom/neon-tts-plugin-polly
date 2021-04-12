@@ -17,24 +17,34 @@
 # US Patents 2008-2021: US7424516, US20140161250, US20140177813, US8638908, US8068604, US8553852, US10530923, US10530924
 # China Patent: CN102017585  -  Europe Patent: EU2156652  -  Patents Pending
 
+import json
 import os
 
 
-def get_credentials_from_file(amazon_cred_path: str = None):
+def get_credentials_from_file(amazon_cred_path: str = None) -> dict:
     amazon_cred_path = os.path.expanduser(amazon_cred_path or "~/accessKeys.csv")
     default_path = os.path.expanduser("~/.aws/credentials")
-    aws_id = None
-    aws_key = None
-    if os.path.isfile(amazon_cred_path):
+    testing_path = os.path.expanduser("~/.local/share/neon/aws.json")
+
+    amazon_creds = dict()
+
+    if os.path.isfile(testing_path):
+        with open(testing_path, "r") as f:
+            amazon_creds = json.load(f)
+    elif os.path.isfile(amazon_cred_path):
         with open(amazon_cred_path, "r") as f:
             aws_id, aws_key = f.readlines()[1].rstrip('\n').split(',', 1)
+            amazon_creds = {"aws_access_key_id": aws_id,
+                            "aws_secret_access_key": aws_key}
     elif os.path.isfile(default_path):
+        aws_id = None
+        aws_key = None
         with open(default_path, "r") as f:
             for line in f.read().split("\n"):
                 if line.startswith("aws_access_key_id"):
                     aws_id = line.split("=", 1)[1].strip()
                 elif line.startswith("aws_secret_access_key"):
                     aws_key = line.split("=", 1)[1].strip()
-    amazon_creds = {"aws_access_key_id": aws_id,
-                    "aws_secret_access_key": aws_key}
+        amazon_creds = {"aws_access_key_id": aws_id,
+                        "aws_secret_access_key": aws_key}
     return amazon_creds

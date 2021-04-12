@@ -43,8 +43,13 @@ class TestPolly(unittest.TestCase):
         except AttributeError:
             pass
 
-    def test_get_credentials(self):
+    def test_get_setup_credentials(self):
         creds = get_credentials_from_file()
+        self.assertIsInstance(creds["aws_access_key_id"], str)
+        self.assertIsInstance(creds["aws_secret_access_key"], str)
+
+    def test_get_default_credentials(self):
+        creds = get_credentials_from_file("/not/a/file")
         self.assertIsInstance(creds["aws_access_key_id"], str)
         self.assertIsInstance(creds["aws_secret_access_key"], str)
 
