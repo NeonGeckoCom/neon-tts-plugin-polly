@@ -1,2 +1,2 @@
 boto3
-mycroft @ git+https://github.com/HelloChatterbox/mycroft-lib
+mycroft-lib @ git+https://github.com/HelloChatterbox/mycroft-lib
