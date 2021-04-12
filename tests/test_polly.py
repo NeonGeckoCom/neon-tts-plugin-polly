@@ -58,18 +58,18 @@ class TestPolly(unittest.TestCase):
         file, _ = self.polly.get_tts("Hello.", out_file)
         self.assertEqual(file, out_file)
 
-    def test_get_voice(self):
+    def test_get_voice_english(self):
         voice = self.polly._get_voice("en-us", "female")
         self.assertEqual(voice, "Joanna")
 
-        voice = self.polly._get_voice("en-us", "female")
-        self.assertEqual(voice, "Joanna")
+    def test_voices_unicode(self):
+        voice = self.polly._get_voice("fr-fr", "female")
+        self.assertEqual(voice, "Celine")
 
     def test_describe_voices(self):
         voices = self.polly.polly.describe_voices()
-        pprint(voices)
         languages = {v.get("LanguageName"): v.get("LanguageCode") for v in voices["Voices"]}
-        pprint(languages)
+        self.assertIsInstance(languages, dict)
 
     def test_empty_speak(self):
         out_file = os.path.join(os.path.dirname(__file__), "test2.wav")
