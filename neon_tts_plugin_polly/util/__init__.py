@@ -23,16 +23,18 @@ import os
 def get_credentials_from_file(amazon_cred_path: str = None):
     amazon_cred_path = os.path.expanduser(amazon_cred_path or "~/accessKeys.csv")
     default_path = os.path.expanduser("~/.aws/credentials")
+    aws_id = None
+    aws_key = None
     if os.path.isfile(amazon_cred_path):
         with open(amazon_cred_path, "r") as f:
             aws_id, aws_key = f.readlines()[1].rstrip('\n').split(',', 1)
     elif os.path.isfile(default_path):
         with open(default_path, "r") as f:
-            for line in f.readlines():
+            for line in f.read().split("\n"):
                 if line.startswith("aws_access_key_id"):
-                    aws_id = line.split("=", 1)[1].rstrip("\n").strip()
+                    aws_id = line.split("=", 1)[1].strip()
                 elif line.startswith("aws_secret_access_key"):
-                    aws_key = line.split("=", 1)[1].rstrip("\n").strip()
+                    aws_key = line.split("=", 1)[1].strip()
     amazon_creds = {"aws_access_key_id": aws_id,
                     "aws_secret_access_key": aws_key}
     return amazon_creds

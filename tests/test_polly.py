@@ -25,6 +25,7 @@ from pprint import pprint
 sys.path.append(os.path.join(os.path.dirname(__file__), "res"))
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from neon_tts_plugin_polly import PollyTTS
+from neon_tts_plugin_polly.util import get_credentials_from_file
 
 
 class TestPolly(unittest.TestCase):
@@ -41,6 +42,11 @@ class TestPolly(unittest.TestCase):
             self.polly.playback.join()
         except AttributeError:
             pass
+
+    def test_get_credentials(self):
+        creds = get_credentials_from_file()
+        self.assertIsInstance(creds["aws_access_key_id"], str)
+        self.assertIsInstance(creds["aws_secret_access_key"], str)
 
     def test_speak_no_params(self):
         out_file = os.path.join(os.path.dirname(__file__), "test.wav")
