@@ -24,7 +24,7 @@ jobs:
             echo $AMAZON_CREDS > ~/.aws/credentials
         shell: bash
         env:
-          GOOGLE_KEY: ${{secrets.amazon_creds}}
+          AMAZON_CREDS: ${{secrets.amazon_creds}}
       - name: Test Polly TTS
         run: |
           pip install pytest pytest-timeout
