@@ -39,7 +39,7 @@ class TestPolly(unittest.TestCase):
         try:
             self.polly.playback.stop()
             self.polly.playback.join()
-        except AttributeError
+        except AttributeError:
             pass
 
     def test_speak_no_params(self):
