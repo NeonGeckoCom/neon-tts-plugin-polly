@@ -25,6 +25,7 @@ from neon_utils.parse_utils import format_speak_tags
 
 from mycroft.tts import TTS, TTSValidator
 from mycroft.metrics import Stopwatch
+from unidecode import unidecode
 
 from neon_tts_plugin_polly.util import get_credentials_from_file
 
@@ -78,8 +79,8 @@ class PollyTTS(TTS):
         if request_lang.lower() == "zh-zh":
             request_lang = "cmn-cn"
 
-        reguest_gender = speaker.get("gender", "female")
-        request_voice = speaker.get("voice", self._get_voice(request_lang, reguest_gender))
+        request_gender = speaker.get("gender", "female")
+        request_voice = speaker.get("voice") or  self._get_voice(request_lang, request_gender)
 
         to_speak = format_speak_tags(sentence)
         LOG.debug(to_speak)
@@ -122,7 +123,7 @@ class PollyTTS(TTS):
                 elif "Joey" in voices:
                     sel_voice = "Joey"
                 else:
-                    sel_voice = voices[0]
+                    sel_voice = unidecode(voices[0])
             self._voice_cache[cache_key] = sel_voice
         LOG.debug(f"Get Voice time={stopwatch.time}")
         return sel_voice
