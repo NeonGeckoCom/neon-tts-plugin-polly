@@ -58,22 +58,22 @@ class PollyTTS(TTS):
 
         to_speak = format_speak_tags(sentence)
         LOG.debug(to_speak)
-        with stopwatch:
-            tts = boto3.client(service_name='polly', region_name=self.region, aws_access_key_id=self.key_id,
-                               aws_secret_access_key=self.key).synthesize_speech(OutputFormat='mp3',
-                                                                                 Text=to_speak,
-                                                                                 TextType='ssml',
-                                                                                 VoiceId=request_voice)
-        LOG.debug(f"Polly time={stopwatch.time}")
+        if to_speak:
+            with stopwatch:
+                tts = boto3.client(service_name='polly', region_name=self.region, aws_access_key_id=self.key_id,
+                                   aws_secret_access_key=self.key).synthesize_speech(OutputFormat='mp3',
+                                                                                     Text=to_speak,
+                                                                                     TextType='ssml',
+                                                                                     VoiceId=request_voice)
+            LOG.debug(f"Polly time={stopwatch.time}")
 
-        with stopwatch:
-            with open(str(wav_file), 'wb') as speak_file:
-                sound_bytes = tts['AudioStream'].read()
-                speak_file.write(sound_bytes)
-                # speak_file.close()
-                speak_filename = speak_file.name
-        LOG.debug(f"File access time={stopwatch.time}")
-        return speak_filename, None
+            with stopwatch:
+                with open(str(wav_file), 'wb') as speak_file:
+                    sound_bytes = tts['AudioStream'].read()
+                    speak_file.write(sound_bytes)
+                    # speak_file.close()
+            LOG.debug(f"File access time={stopwatch.time}")
+        return wav_file, None
 
     def _get_voice(self, language, gender) -> str:
         stopwatch = Stopwatch()
