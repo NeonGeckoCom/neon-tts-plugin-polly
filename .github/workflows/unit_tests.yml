@@ -20,8 +20,8 @@ jobs:
           pip install -r requirements.txt
       - name: Get Credential
         run: |
-            mkdir -p ~/.aws
-            echo $AMAZON_CREDS > ~/.aws/credentials
+            mkdir -p ~/.local/share/neon
+            echo $AMAZON_CREDS > ~/.local/share/neon/aws.json
         shell: bash
         env:
           AMAZON_CREDS: ${{secrets.amazon_creds}}
