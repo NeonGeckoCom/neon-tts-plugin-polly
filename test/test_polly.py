@@ -28,12 +28,15 @@ from neon_tts_plugin_polly import PollyTTS
 
 class MyTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        global CONFIG
-        self.polly = PollyTTS(config={'aws_access_key_id': "",
-                                      'aws_secret_access_key': ""})
+        self.polly = PollyTTS()
 
-    def tearDown(self) -> None:
-        self.polly = None
+    def doCleanups(self) -> None:
+        try:
+            os.remove(os.path.join(os.path.dirname(__file__), "test.wav"))
+        except FileNotFoundError:
+            pass
+        self.polly.playback.stop()
+        self.polly.playback.join()
 
     def test_speak_no_params(self):
         out_file = os.path.join(os.path.dirname(__file__), "test.wav")
@@ -49,9 +52,4 @@ class MyTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # TODO: Figure out how to pass this into the test, environment vars, etc. DM
-    aws_id = sys.argv[1]
-    aws_secret = sys.argv[2]
-    CONFIG = {'aws_access_key_id': aws_id,
-              'aws_secret_access_key': aws_secret}
     unittest.main()
