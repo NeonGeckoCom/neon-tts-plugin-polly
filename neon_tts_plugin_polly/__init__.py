@@ -23,7 +23,7 @@ from neon_utils.configuration_utils import get_neon_tts_config
 from neon_utils.logger import LOG
 from neon_utils.parse_utils import format_speak_tags
 
-from mycroft.tts import TTS, TTSValidator
+from neon_audio.tts import TTS, TTSValidator
 from mycroft.metrics import Stopwatch
 from unidecode import unidecode
 
