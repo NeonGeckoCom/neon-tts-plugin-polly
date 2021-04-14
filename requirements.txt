@@ -2,4 +2,3 @@ boto3
 unidecode
 mycroft-lib @ git+https://github.com/HelloChatterbox/mycroft-lib
 neon_utils @ git+https://github.com/NeonGeckoCom/neon-skill-utils@dev
-neon-audio @ git+https://github.com/NeonDaniel/neon_audio
