@@ -19,7 +19,7 @@
 
 from setuptools import setup, find_packages
 
-PLUGIN_ENTRY_POINT = 'amazon_polly = neon_tts_plugin_polly:PollyTTS'
+PLUGIN_ENTRY_POINT = 'amazon = neon_tts_plugin_polly:PollyTTS'
 
 with open("README.md", "r") as f:
     long_description = f.read()
