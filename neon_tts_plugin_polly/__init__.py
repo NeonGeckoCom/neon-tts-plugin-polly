@@ -1,12 +1,36 @@
+# NEON AI (TM) SOFTWARE, Software Development Kit & Application Development System
+#
+# Copyright 2008-2021 Neongecko.com Inc. | All Rights Reserved
+#
+# Notice of License - Duplicating this Notice of License near the start of any file containing
+# a derivative of this software is a condition of license for this software.
+# Friendly Licensing:
+# No charge, open source royalty free use of the Neon AI software source and object is offered for
+# educational users, noncommercial enthusiasts, Public Benefit Corporations (and LLCs) and
+# Social Purpose Corporations (and LLCs). Developers can contact developers@neon.ai
+# For commercial licensing, distribution of derivative works or redistribution please contact licenses@neon.ai
+# Distributed on an "AS IS” basis without warranties or conditions of any kind, either express or implied.
+# Trademarks of Neongecko: Neon AI(TM), Neon Assist (TM), Neon Communicator(TM), Klat(TM)
+# Authors: Guy Daniels, Daniel McKnight, Regina Bloomstine, Elon Gasper, Richard Leeds
+#
+# Specialized conversational reconveyance options from Conversation Processing Intelligence Corp.
+# US Patents 2008-2021: US7424516, US20140161250, US20140177813, US8638908, US8068604, US8553852, US10530923, US10530924
+# China Patent: CN102017585  -  Europe Patent: EU2156652  -  Patents Pending
 
 import boto3
-from mycroft.metrics import Stopwatch
 
-from neon_utils.configuration_utils import NGIConfig
+from neon_utils.configuration_utils import get_neon_tts_config
 from neon_utils.logger import LOG
 from neon_utils.parse_utils import format_speak_tags
 
-from mycroft.tts import TTS, TTSValidator
+try:
+    from neon_audio.tts import TTS, TTSValidator
+except Exception as e:
+    from mycroft.tts import TTS, TTSValidator
+from mycroft.metrics import Stopwatch
+from unidecode import unidecode
+
+from neon_tts_plugin_polly.util import get_credentials_from_file
 
 LOG.name = "PollyTTS"
 
@@ -14,7 +38,7 @@ LOG.name = "PollyTTS"
 class PollyTTS(TTS):
 
     def __init__(self, lang="en-us", config=None):
-        config = config or NGIConfig("ngi_user_info").content.get("tts", {}).get("polly", {})
+        config = config or get_neon_tts_config().get("polly", {})
         super(PollyTTS, self).__init__(lang, config, PollyTTSValidator(self),
                                        audio_ext="mp3",
                                        ssml_tags=["speak", "say-as", "voice",
@@ -25,7 +49,11 @@ class PollyTTS(TTS):
                                                   "p", "s", "amazon:effect",
                                                   "mark"])
 
-        if hasattr(self, "keys") and self.keys.get("polly"):
+        if config.get("aws_access_key_id"):
+            self.key_id = self.config.get("aws_access_key_id", '')
+            self.key = self.config.get("aws_secret_access_key", '')
+            self.region = self.config.get("region", 'us-west-2')
+        elif hasattr(self, "keys") and self.keys.get("polly"):
             self.key_id = self.keys["polly"].get("key_id") or self.key_id
             self.key = self.keys["polly"].get("secret_key") or self.key
             self.region = self.keys["polly"].get("region") or self.region
@@ -35,9 +63,10 @@ class PollyTTS(TTS):
             self.key = self.keys["amazon"].get("secret_key") or self.key
             self.region = self.keys["amazon"].get("region") or self.region
         else:
-            self.key_id = self.config.get("aws_access_key_id", '')
-            self.key = self.config.get("aws_secret_access_key", '')
-            self.region = self.config.get("region", 'us-west-2')
+            creds = get_credentials_from_file()
+            self.key = creds.get("aws_secret_access_key", '')
+            self.key_id = creds.get("aws_access_key_id", '')
+            self.region = "us-west-2"
 
         self._voice_cache = dict()
         self.polly = boto3.Session(aws_access_key_id=self.key_id,
@@ -53,8 +82,8 @@ class PollyTTS(TTS):
         if request_lang.lower() == "zh-zh":
             request_lang = "cmn-cn"
 
-        reguest_gender = speaker.get("gender", "female")
-        request_voice = speaker.get("voice", self._get_voice(request_lang, reguest_gender))
+        request_gender = speaker.get("gender", "female")
+        request_voice = speaker.get("voice") or  self._get_voice(request_lang, request_gender)
 
         to_speak = format_speak_tags(sentence)
         LOG.debug(to_speak)
@@ -97,7 +126,7 @@ class PollyTTS(TTS):
                 elif "Joey" in voices:
                     sel_voice = "Joey"
                 else:
-                    sel_voice = voices[0]
+                    sel_voice = unidecode(voices[0])
             self._voice_cache[cache_key] = sel_voice
         LOG.debug(f"Get Voice time={stopwatch.time}")
         return sel_voice
@@ -120,14 +149,15 @@ class PollyTTSValidator(TTSValidator):
                 'boto3 ')
 
     def validate_connection(self):
-        try:
-            # if not self.tts.voice:
-            #     raise Exception("Polly TTS Voice not configured")
-            output = self.tts.describe_voices()
-        except TypeError:
-            raise Exception(
-                'PollyTTS server could not be verified. Please check your '
-                'internet connection and credentials.')
+        pass
+        # try:
+        #     # if not self.tts.voice:
+        #     #     raise Exception("Polly TTS Voice not configured")
+        #     self.tts.describe_voices()
+        # except TypeError:
+        #     raise Exception(
+        #         'PollyTTS server could not be verified. Please check your '
+        #         'internet connection and credentials.')
 
     def get_tts_class(self):
         return PollyTTS
