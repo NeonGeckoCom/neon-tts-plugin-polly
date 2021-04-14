@@ -149,14 +149,15 @@ class PollyTTSValidator(TTSValidator):
                 'boto3 ')
 
     def validate_connection(self):
-        try:
-            # if not self.tts.voice:
-            #     raise Exception("Polly TTS Voice not configured")
-            self.tts.describe_voices()
-        except TypeError:
-            raise Exception(
-                'PollyTTS server could not be verified. Please check your '
-                'internet connection and credentials.')
+        pass
+        # try:
+        #     # if not self.tts.voice:
+        #     #     raise Exception("Polly TTS Voice not configured")
+        #     self.tts.describe_voices()
+        # except TypeError:
+        #     raise Exception(
+        #         'PollyTTS server could not be verified. Please check your '
+        #         'internet connection and credentials.')
 
     def get_tts_class(self):
         return PollyTTS
