@@ -25,7 +25,7 @@ from neon_utils.parse_utils import format_speak_tags
 
 try:
     from neon_audio.tts import TTS, TTSValidator
-except Exception as e:
+except ImportError:
     from mycroft.tts import TTS, TTSValidator
 from mycroft.metrics import Stopwatch
 from unidecode import unidecode
