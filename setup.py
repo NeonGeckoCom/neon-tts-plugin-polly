@@ -61,7 +61,7 @@ setup(
     author_email='developers@neon.ai',
     license='NeonAI License v1.0',
     packages=find_packages(),
-    install_requires=get_requirements("requirements/requirements.txt"),
+    install_requires=get_requirements("requirements.txt"),
     zip_safe=True,
     classifiers=[
         'Intended Audience :: Developers',
