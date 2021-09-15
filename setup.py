@@ -56,6 +56,8 @@ setup(
     name='neon-tts-plugin-polly',
     version=version,
     description='A Polly TTS plugin for Neon',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/NeonGeckoCom/neon-tts-plugin-polly',
     author='Neongecko',
     author_email='developers@neon.ai',
