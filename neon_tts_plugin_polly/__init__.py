@@ -32,8 +32,6 @@ from unidecode import unidecode
 
 from neon_tts_plugin_polly.util import get_credentials_from_file
 
-LOG.name = "PollyTTS"
-
 
 class PollyTTS(TTS):
 
