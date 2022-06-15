@@ -42,6 +42,8 @@ class TestPolly(unittest.TestCase):
             self.polly.playback.join()
         except AttributeError:
             pass
+        except Exception:
+            pass
 
     def test_get_setup_credentials(self):
         creds = get_credentials_from_file()
