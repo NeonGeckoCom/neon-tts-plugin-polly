@@ -14,6 +14,7 @@ license_overrides = {
     'neon-utils': 'BSD3',
     'neon-tts-plugin-polly': 'BSD3',
     'soupsieve': 'MIT',
+    'setuptools': 'MIT',
     "python-dateutil": "Apache-2.0",
     "pyparsing": "MIT"
 }
