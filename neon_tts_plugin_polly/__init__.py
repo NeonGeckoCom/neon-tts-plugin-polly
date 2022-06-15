@@ -24,7 +24,6 @@ from neon_utils.logger import LOG
 from neon_utils.parse_utils import format_speak_tags
 from ovos_plugin_manager.templates.tts import TTS, TTSValidator
 from ovos_utils.metrics import Stopwatch
-from unidecode import unidecode
 
 from neon_tts_plugin_polly.util import get_credentials_from_file
 
@@ -120,10 +119,17 @@ class PollyTTS(TTS):
                 elif "Joey" in voices:
                     sel_voice = "Joey"
                 else:
-                    sel_voice = unidecode(voices[0])
+                    sel_voice = self._clean_voice_name(voices[0])
             self._voice_cache[cache_key] = sel_voice
         LOG.debug(f"Get Voice time={stopwatch.time}")
         return sel_voice
+
+    @staticmethod
+    def _clean_voice_name(voice):
+        import unicodedata
+        return unicodedata.normalize('NFKD',
+                                     voice).encode('ASCII',
+                                                   'ignore').decode('ASCII')
 
 
 class PollyTTSValidator(TTSValidator):
