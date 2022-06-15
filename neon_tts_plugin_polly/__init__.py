@@ -127,8 +127,9 @@ class PollyTTS(TTS):
     @staticmethod
     def _clean_voice_name(voice):
         import unicodedata
-        return str(unicodedata.normalize('NFKD',
-                                         voice).encode('ASCII', 'ignore'))
+        return unicodedata.normalize('NFKD',
+                                     voice).encode('utf-8',
+                                                   'ignore').decode('utf-8')
 
 
 class PollyTTSValidator(TTSValidator):
