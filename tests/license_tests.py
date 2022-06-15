@@ -11,7 +11,9 @@ license_overrides = {
     'pyxdg': 'GPL-2.0',
     'ptyprocess': 'ISC license',
     'psutil': 'BSD3',
-    'neon-utils': "BSD3"
+    'neon-utils': 'BSD3',
+    'neon-tts-plugin-polly': 'BSD3',
+    'soupsieve': 'MIT'
 }
 # explicitly allow these packages that would fail otherwise
 whitelist = []
