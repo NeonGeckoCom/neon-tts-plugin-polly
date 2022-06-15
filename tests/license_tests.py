@@ -15,6 +15,7 @@ license_overrides = {
     'neon-tts-plugin-polly': 'BSD3',
     'soupsieve': 'MIT',
     "python-dateutil": "Apache-2.0",
+    "pyparsing": "MIT"
 }
 # explicitly allow these packages that would fail otherwise
 whitelist = ['neon-api-proxy']
