@@ -42,6 +42,8 @@ class TestPolly(unittest.TestCase):
             self.polly.playback.join()
         except AttributeError:
             pass
+        except Exception:
+            pass
 
     def test_get_setup_credentials(self):
         creds = get_credentials_from_file()
@@ -70,17 +72,6 @@ class TestPolly(unittest.TestCase):
         voices = self.polly.polly.describe_voices()
         languages = {v.get("LanguageName"): v.get("LanguageCode") for v in voices["Voices"]}
         self.assertIsInstance(languages, dict)
-
-    def test_empty_speak(self):
-        out_file = os.path.join(os.path.dirname(__file__), "test2.wav")
-        file, _ = self.polly.get_tts("</speak>Hello.", out_file)
-        self.assertFalse(os.path.isfile(out_file))
-
-    def test_describe_voices(self):
-        voices = self.polly.polly.describe_voices()
-        pprint(voices)
-        languages = {v.get("LanguageName"): v.get("LanguageCode") for v in voices["Voices"]}
-        pprint(languages)
 
     def test_empty_speak(self):
         out_file = os.path.join(os.path.dirname(__file__), "test2.wav")
