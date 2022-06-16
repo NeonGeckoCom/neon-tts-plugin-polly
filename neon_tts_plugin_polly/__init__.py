@@ -28,7 +28,6 @@ from neon_tts_plugin_polly.util import get_credentials_from_file
 class PollyTTS(TTS):
 
     def __init__(self, lang="en-us", config=None):
-        config = config or get_credentials_from_file()
         super(PollyTTS, self).__init__(lang, config, PollyTTSValidator(self),
                                        audio_ext="mp3",
                                        ssml_tags=["speak", "say-as", "voice",
@@ -75,8 +74,8 @@ class PollyTTS(TTS):
 
         request_gender = speaker.get("gender", "female")
         request_voice = speaker.get("voice") or \
-            self._get_voice({'language': request_lang,
-                             'gender': request_gender})
+            self._get_valid_voice(language=request_lang,
+                                  gender=request_gender)
 
         to_speak = self.format_speak_tags(sentence)
         LOG.debug(to_speak)
@@ -100,10 +99,8 @@ class PollyTTS(TTS):
             LOG.debug(f"File access time={stopwatch.time}")
         return wav_file, None
 
-    def _get_voice(self, kwargs) -> str:
+    def _get_valid_voice(self, language, gender) -> str:
         stopwatch = Stopwatch()
-        language = kwargs.get("language")
-        gender = kwargs.get("gender")
         with stopwatch:
             lang, reg = language.split("-")
             lang_code = f"{lang}-{reg.upper()}"
