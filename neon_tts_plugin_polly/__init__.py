@@ -28,6 +28,7 @@ from neon_tts_plugin_polly.util import get_credentials_from_file
 class PollyTTS(TTS):
 
     def __init__(self, lang="en-us", config=None):
+        config = config or get_credentials_from_file()
         super(PollyTTS, self).__init__(lang, config, PollyTTSValidator(self),
                                        audio_ext="mp3",
                                        ssml_tags=["speak", "say-as", "voice",
