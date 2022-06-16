@@ -75,8 +75,8 @@ class PollyTTS(TTS):
 
         request_gender = speaker.get("gender", "female")
         request_voice = speaker.get("voice") or \
-            self._get_voice(language=request_lang,
-                            gender=request_gender)
+            self._get_voice({'language': request_lang,
+                             'gender': request_gender})
 
         to_speak = self.format_speak_tags(sentence)
         LOG.debug(to_speak)
@@ -100,7 +100,7 @@ class PollyTTS(TTS):
             LOG.debug(f"File access time={stopwatch.time}")
         return wav_file, None
 
-    def _get_voice(self, **kwargs) -> str:
+    def _get_voice(self, kwargs) -> str:
         stopwatch = Stopwatch()
         language = kwargs.get("language")
         gender = kwargs.get("gender")
