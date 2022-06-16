@@ -75,8 +75,8 @@ class PollyTTS(TTS):
 
         request_gender = speaker.get("gender", "female")
         request_voice = speaker.get("voice") or \
-            self._get_valid_voice(language=request_lang,
-                                  gender=request_gender)
+            self._get_default_voice(language=request_lang,
+                                    gender=request_gender)
 
         to_speak = self.format_speak_tags(sentence)
         LOG.debug(to_speak)
@@ -100,7 +100,16 @@ class PollyTTS(TTS):
             LOG.debug(f"File access time={stopwatch.time}")
         return wav_file, None
 
-    def _get_valid_voice(self, language, gender) -> str:
+    def _get_default_voice(self, language, gender) -> str:
+        """
+        Get a default valid voice name for the requested language and gender
+        Args:
+            language: full language code
+            gender: "male" or "female"
+
+        Returns:
+            voice name to include in boto3 request
+        """
         stopwatch = Stopwatch()
         with stopwatch:
             lang, reg = language.split("-")
