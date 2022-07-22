@@ -19,19 +19,16 @@
 
 import boto3
 
-from neon_utils.configuration_utils import get_neon_tts_config
-from neon_utils.logger import LOG
-from neon_utils.parse_utils import format_speak_tags
 from ovos_plugin_manager.templates.tts import TTS, TTSValidator
 from ovos_utils.metrics import Stopwatch
-
+from ovos_utils.log import LOG
 from neon_tts_plugin_polly.util import get_credentials_from_file
 
 
 class PollyTTS(TTS):
 
     def __init__(self, lang="en-us", config=None):
-        config = config or get_neon_tts_config().get("polly", {})
+        config = config or get_credentials_from_file()
         super(PollyTTS, self).__init__(lang, config, PollyTTSValidator(self),
                                        audio_ext="mp3",
                                        ssml_tags=["speak", "say-as", "voice",
@@ -50,7 +47,8 @@ class PollyTTS(TTS):
             self.key_id = self.keys["polly"].get("key_id") or self.key_id
             self.key = self.keys["polly"].get("secret_key") or self.key
             self.region = self.keys["polly"].get("region") or self.region
-        # these checks are separate in case we want to use different keys for the translate api for example
+        # these checks are separate in case we want to use different keys
+        # for the translate api for example
         elif hasattr(self, "keys") and self.keys.get("amazon"):
             self.key_id = self.keys["amazon"].get("key_id") or self.key_id
             self.key = self.keys["amazon"].get("secret_key") or self.key
@@ -76,17 +74,22 @@ class PollyTTS(TTS):
             request_lang = "cmn-cn"
 
         request_gender = speaker.get("gender", "female")
-        request_voice = speaker.get("voice") or  self._get_voice(request_lang, request_gender)
+        request_voice = speaker.get("voice") or \
+            self._get_default_voice(language=request_lang,
+                                    gender=request_gender)
 
-        to_speak = format_speak_tags(sentence)
+        to_speak = self.format_speak_tags(sentence)
         LOG.debug(to_speak)
         if to_speak:
             with stopwatch:
-                tts = boto3.client(service_name='polly', region_name=self.region, aws_access_key_id=self.key_id,
-                                   aws_secret_access_key=self.key).synthesize_speech(OutputFormat='mp3',
-                                                                                     Text=to_speak,
-                                                                                     TextType='ssml',
-                                                                                     VoiceId=request_voice)
+                tts = boto3.client(service_name='polly',
+                                   region_name=self.region,
+                                   aws_access_key_id=self.key_id,
+                                   aws_secret_access_key=self.key).\
+                    synthesize_speech(OutputFormat='mp3',
+                                      Text=to_speak,
+                                      TextType='ssml',
+                                      VoiceId=request_voice)
             LOG.debug(f"Polly time={stopwatch.time}")
 
             with stopwatch:
@@ -97,7 +100,16 @@ class PollyTTS(TTS):
             LOG.debug(f"File access time={stopwatch.time}")
         return wav_file, None
 
-    def _get_voice(self, language, gender) -> str:
+    def _get_default_voice(self, language, gender) -> str:
+        """
+        Get a default valid voice name for the requested language and gender
+        Args:
+            language: full language code
+            gender: "male" or "female"
+
+        Returns:
+            voice name to include in boto3 request
+        """
         stopwatch = Stopwatch()
         with stopwatch:
             lang, reg = language.split("-")
@@ -109,11 +121,14 @@ class PollyTTS(TTS):
                 sel_voice = self._voice_cache[cache_key]
             else:
                 data = self.polly.describe_voices(LanguageCode=lang_code)
-                voices = [voice.get('Name') for voice in data.get("Voices") if voice.get("Gender") == gender.title()]
+                voices = [voice.get('Name') for voice in data.get("Voices") if
+                          voice.get("Gender") == gender.title()]
                 if len(voices) == 0:
-                    LOG.warning("No voices available for the requested language and gender")
+                    LOG.warning("No voices available for the requested "
+                                "language and gender")
                     LOG.debug(voices)
-                    voices = [voice.get('Name') for voice in data.get("Voices")]
+                    voices = [voice.get('Name') for voice in
+                              data.get("Voices")]
                 if "Joanna" in voices:
                     sel_voice = "Joanna"
                 elif "Joey" in voices:
@@ -166,11 +181,17 @@ class PollyTTSValidator(TTSValidator):
 if __name__ == "__main__":
     e = PollyTTS()
     ssml = """<speak>
-     This is my original voice, without any modifications. <amazon:effect vocal-tract-length="+15%"> 
-     Now, imagine that I am much bigger. </amazon:effect> <amazon:effect vocal-tract-length="-15%"> 
-     Or, perhaps you prefer my voice when I'm very small. </amazon:effect> You can also control the 
-     timbre of my voice by making minor adjustments. <amazon:effect vocal-tract-length="+10%"> 
-     For example, by making me sound just a little bigger. </amazon:effect><amazon:effect 
-     vocal-tract-length="-10%"> Or, making me sound only somewhat smaller. </amazon:effect> 
+     This is my original voice, without any modifications. 
+     <amazon:effect vocal-tract-length="+15%"> 
+     Now, imagine that I am much bigger. </amazon:effect> 
+     <amazon:effect vocal-tract-length="-15%"> 
+     Or, perhaps you prefer my voice when I'm very small. 
+     </amazon:effect> You can also control the 
+     timbre of my voice by making minor adjustments. 
+     <amazon:effect vocal-tract-length="+10%"> 
+     For example, by making me sound just a little bigger. 
+     </amazon:effect><amazon:effect 
+     vocal-tract-length="-10%"> Or, making me sound only somewhat smaller. 
+     </amazon:effect> 
 </speak>"""
     e.get_tts(ssml, "polly.mp3")

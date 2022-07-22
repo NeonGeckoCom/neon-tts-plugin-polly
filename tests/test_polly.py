@@ -61,12 +61,12 @@ class TestPolly(unittest.TestCase):
         self.assertEqual(file, out_file)
 
     def test_get_voice_english(self):
-        voice = self.polly._get_voice("en-us", "female")
+        voice = self.polly._get_default_voice("en-us", "female")
         self.assertEqual(voice, "Joanna")
 
     def test_voices_unicode(self):
-        voice = self.polly._get_voice("fr-fr", "female")
-        self.assertEqual(voice, "Celine")
+        voice = self.polly._get_default_voice("fr-fr", "female")
+        self.assertIn(voice, ("Celine", "Lea"))
 
     def test_describe_voices(self):
         voices = self.polly.polly.describe_voices()
