@@ -66,7 +66,7 @@ class TestPolly(unittest.TestCase):
 
     def test_voices_unicode(self):
         voice = self.polly._get_default_voice("fr-fr", "female")
-        self.assertEqual(voice, "Celine")
+        self.assertIn(voice, ("Celine", "Lea"))
 
     def test_describe_voices(self):
         voices = self.polly.polly.describe_voices()
